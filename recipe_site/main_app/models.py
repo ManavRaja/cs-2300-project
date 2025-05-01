@@ -3,11 +3,10 @@ from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 import uuid
 
-# Create your models here.
 
 # Recipe Table
 class Recipe(models.Model):
-    name = models.CharField(max_length=200, null=True, blank=True)
+    name = models.CharField(max_length=200, unique=False, default='My Recipe Name', null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     instructions = models.TextField(null=True, blank=True)
     picture = models.ImageField(upload_to='recipes/', null=True, blank=True)
@@ -24,13 +23,10 @@ class Recipe(models.Model):
     class Meta:
         abstract = True
 
-    def save(self, *args, **kwargs):
-        self.full_clean()  # Call clean() during save
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f'Recipe: {self.name} Primary Key: {self.pk}'
-    
+    # def save(self, *args, **kwargs):
+    #     self.full_clean()  # Call clean() during save
+    #     super().save(*args, **kwargs)
+ 
 
 # Premade_Recipe Table
 class PremadeRecipe(Recipe):
@@ -40,19 +36,22 @@ class PremadeRecipe(Recipe):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'Premade Recipe: {self.name}'
+        return f'pk={self.pk}, name={self.name}, (PREMADE)'
     
 
 # Custom_Recipe Table
 class CustomRecipe(Recipe):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='custom_recipes')
 
-    def save(self, *args, **kwargs):
-        self.full_clean()  # Call clean() during save
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = (("user", "name"),)
+
+    # def save(self, *args, **kwargs):
+    #     self.full_clean()  # Call clean() during save
+    #     super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'Custom Recipe: {self.name} by {self.user.username}'
+        return f'pk={self.pk}, name={self.name}, username={self.user.username} (CUSTOM)'
 
 
 # Weekly_Meal_Plan Table
