@@ -1,0 +1,20 @@
+{% extends "main_app/layout.html" %}
+
+
+{% block nav %}
+
+{# Keep the navigation block consistent with the original user.html but include a logout button instead of the login, signup buttons #}
+
+<div class="flex items-center space-x-4">
+    <a href="{% url 'user_dashboard' %}" class="text-gray-600 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+        My Dashboard
+    </a>
+    <a href="{% url 'logout' %}" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow transition duration-150 ease-in-out">
+        Log Out
+    </a>
+</div>
+
+
+{% endblock %}
+
+

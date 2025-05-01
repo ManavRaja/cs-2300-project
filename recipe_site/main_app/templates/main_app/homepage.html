@@ -1,5 +1,7 @@
 {% extends "main_app/layout.html" %}
 
+
+
 {% block nav %}
 <div class="flex items-center space-x-4">
     <a href="{% url 'login' %}" class="text-gray-600 hover:text-orange-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
@@ -13,8 +15,19 @@
 
 {% block content %}
     {% load static %}
+
+
+
+
     <main class="content-height flex flex-col items-center justify-center text-center px-4">
+        {% if logout_msg %}
+        <div class="text-[#F44545] text-base text-center font-bold mb-8" id="timed-message-element">
+            {{ logout_msg }}
+        </div>         
+        {% endif %}
+
         <div class="w-1/6 mx-auto"> <img src="{% static 'healthy-food.png' %}" alt="Description" class="block mx-auto h-auto max-w-full">
+        
         </div>
          <h1 class="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-gray-800 mt-6 mb-6">
             Healthy Meals, Budget-Friendly Plans!
@@ -30,4 +43,44 @@
             </a>
         </div>
     </main>
+
+
+    <script>
+        // Wait for the DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', (event) => {
+    
+            // Get the HTML element by its ID
+            const messageElement = document.getElementById('timed-message-element');
+    
+            // Get the duration from the Django context (or hardcode)
+            // Use Django's |default filter for safety if the variable might not be passed
+            const displayDuration = 3000;
+    
+            // Check if the element actually exists before setting the timeout
+            if (messageElement) {
+                // Schedule the hiding function to run after 'displayDuration' milliseconds
+                setTimeout(() => {
+                    // Option 1: Simply hide the element abruptly
+                    messageElement.style.display = 'none';
+    
+                    // Option 2: Add a CSS class for smoother hiding (using the CSS above)
+                    //messageElement.classList.add('hidden');
+    
+                    // Option 3 (Alternative to Option 2 if you want it removed from layout after fade):
+                    // Add a class for fade first
+                    // messageElement.classList.add('hidden');
+                    // // Then remove it completely after the transition ends (e.g., 500ms)
+                    // setTimeout(() => {
+                    //     messageElement.style.display = 'none';
+                    // }, 500); // Match this delay to your CSS transition duration
+    
+    
+                }, displayDuration); // The delay in milliseconds
+            } else {
+                console.error("Element with ID 'timed-message-element' not found.");
+            }
+        });
+    </script>
+
+
 {% endblock %}
