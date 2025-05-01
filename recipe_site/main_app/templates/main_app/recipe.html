@@ -1,0 +1,120 @@
+{% extends "main_app/user_layout.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  {# Check if the recipe object exists #}
+  {% if recipe %}
+    <div class="bg-white p-6 sm:p-8 rounded-lg shadow-md">
+
+      {# Recipe Name (Title) #}
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4 text-center">
+        {{ recipe.name|default:"Recipe Name Unavailable" }}
+      </h1>
+
+      {# Optional Cuisine Display #}
+      {% if recipe.cuisine %}
+        <p class="text-center text-sm text-gray-500 mb-6 uppercase tracking-wider">{{ recipe.cuisine }}</p>
+      {% endif %}
+
+      {# Main Content Area - Flex layout for Image and Details #}
+      <div class="flex flex-col md:flex-row md:space-x-8">
+
+        {# Left Column (or Top on Mobile): Image and Quick Stats #}
+        <div class="w-full md:w-1/3 mb-6 md:mb-0">
+          {# Recipe Picture #}
+          {% if recipe.picture %}
+            <img src="{{ recipe.picture.url }}" alt="{{ recipe.name }}" class="w-full h-auto object-cover rounded-lg shadow-sm mb-4" onerror="this.onerror=null; this.src='https://placehold.co/600x400/f3f4f6/9ca3af?text=No+Image';">
+          {% else %}
+            {# Placeholder if no image is provided #}
+            <img src="https://placehold.co/600x400/f3f4f6/9ca3af?text=No+Image" alt="Placeholder image for {{ recipe.name }}" class="w-full h-auto object-cover rounded-lg shadow-sm mb-4">
+          {% endif %}
+
+          {# Quick Stats Section #}
+          <div class="space-y-2 text-sm text-gray-700">
+            {% if recipe.cook_time is not None %}
+              <div class="flex justify-between">
+                <span class="font-medium">Cook Time:</span>
+                <span>{{ recipe.cook_time }} minutes</span>
+              </div>
+            {% endif %}
+             {% if recipe.calories is not None %}
+              <div class="flex justify-between">
+                <span class="font-medium">Calories:</span>
+                <span>{{ recipe.calories }} kcal</span>
+              </div>
+            {% endif %}
+             {% if recipe.protein is not None %}
+              <div class="flex justify-between">
+                <span class="font-medium">Protein:</span>
+                <span>{{ recipe.protein }} g</span>
+              </div>
+            {% endif %}
+            {% if recipe.fat is not None %}
+              <div class="flex justify-between">
+                <span class="font-medium">Fat:</span>
+                <span>{{ recipe.fat }} g</span>
+              </div>
+            {% endif %}
+            {% if recipe.carbohydrates is not None %}
+              <div class="flex justify-between">
+                <span class="font-medium">Carbohydrates:</span>
+                <span>{{ recipe.carbohydrates }} g</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Right Column (or Bottom on Mobile): Description, Ingredients, Instructions #}
+        <div class="w-full md:w-2/3">
+          {# Description #}
+          {% if recipe.description %}
+            <div class="mb-6">
+              <h2 class="text-xl font-semibold text-gray-700 mb-2 border-b pb-1">Description</h2>
+              <p class="text-gray-600 whitespace-pre-wrap">{{ recipe.description }}</p> {# whitespace-pre-wrap preserves whitespace and wraps text #}
+            </div>
+          {% endif %}
+
+          {# Ingredients #}
+          {% if recipe.ingredients %}
+            <div class="mb-6">
+              <h2 class="text-xl font-semibold text-gray-700 mb-2 border-b pb-1">Ingredients</h2>
+              {# Use linebreaksbr filter to convert newlines in the TextField to <br> tags #}
+              <div class="text-gray-600 prose prose-sm max-w-none"> {# Using tailwind typography plugin classes for potential list formatting if needed #}
+                 {{ recipe.ingredients|linebreaksbr }}
+              </div>
+            </div>
+          {% endif %}
+
+          {# Instructions #}
+          {% if recipe.instructions %}
+            <div>
+              <h2 class="text-xl font-semibold text-gray-700 mb-2 border-b pb-1">Instructions</h2>
+               {# Use linebreaksbr filter to convert newlines in the TextField to <br> tags #}
+              <div class="text-gray-600 prose prose-sm max-w-none">
+                 {{ recipe.instructions|linebreaksbr }}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div> {# End Main Content Area #}
+
+    </div> {# End Card #}
+
+  {% else %}
+    {# Message if the recipe object is not found #}
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md shadow-md" role="alert">
+      <p class="font-bold">Recipe Not Found</p>
+      <p>The requested recipe could not be loaded. Please check the ID or go back to the dashboard.</p>
+    </div>
+     {# Optional: Add a link back to the dashboard #}
+     <div class="text-center mt-6">
+        <a href="{% url 'user_page' %}" class="text-orange-600 hover:text-orange-800 font-medium">
+            &larr; Back to Dashboard
+        </a>
+        {# Replace 'user_dashboard' with the actual name of your user dashboard URL pattern #}
+     </div>
+  {% endif %}
+
+</div> {# End Container #}
+{% endblock %}

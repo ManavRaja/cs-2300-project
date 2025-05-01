@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from . models import CustomRecipe, PremadeRecipe, WeeklyMealPlan
 
 # Create your views here.
 def home(request):
@@ -80,3 +81,32 @@ def logout_view(request):
     return render(request, 'main_app/homepage.html', {
         'logout_msg' : 'You have been logged out.'
     })
+
+def recipe_detail(request, recipe_id):
+
+    recipe_exists = CustomRecipe.objects.filter(id=recipe_id).exists()
+    recipe_is_users = CustomRecipe.objects.filter(id=recipe_id, user=request.user).exists()
+ 
+    if not request.user.is_authenticated:
+        print('user not authenticated')
+        return HttpResponseRedirect(reverse('login'))
+    
+    elif not recipe_exists:
+        print(f'Recipe with ID {recipe_id} does not exist')
+        # redirects user back to their user page if the recipe does not exist
+        # this is primarily when the user tried to access a recipe by 
+        # manually entering the URL /recipe/<recipe_id_that_doesn't_exist>
+        return HttpResponseRedirect(reverse('user_page'))
+    
+    elif not recipe_is_users:
+        print(f'User: {request.user.username} is authenticated and but is NOT the owner of the recipe')
+        # Get the recipe object
+        return HttpResponseRedirect(reverse('user_page'))
+
+    else:
+
+        print(f'User: {request.user.username} is authenticated and IS the owner of the recipe!')
+        print(f'{CustomRecipe.objects.filter(id=recipe_id)}')
+        return render(request, 'main_app/recipe.html', {
+            'recipe': CustomRecipe.objects.filter(id=recipe_id).first(),
+        })
