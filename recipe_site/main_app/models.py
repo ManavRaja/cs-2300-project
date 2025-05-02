@@ -9,7 +9,7 @@ class Recipe(models.Model):
     name = models.CharField(max_length=200, unique=False, default='My Recipe Name', null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     instructions = models.TextField(null=True, blank=True)
-    picture = models.ImageField(upload_to='recipes/', null=True, blank=True)
+    picture = models.ImageField(upload_to='main_app/static/recipes', null=True, blank=True)
     protein = models.PositiveIntegerField(null=True, blank=True)
     calories = models.PositiveIntegerField(null=True, blank=True)
     fat = models.PositiveIntegerField(null=True, blank=True)

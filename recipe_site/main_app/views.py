@@ -10,16 +10,31 @@ from .forms import RecipeForm
 
 # Create your views here.
 def home_view(request):
+    """
+    View function to handle the homepage rendering.
+    """
+    
     return render(request, 'main_app/homepage.html')
 
 
 
 def login_view(request):
+    """
+    View function to handle user login.
+    - Renders the login form on GET request.
+    - Processes submitted form data on POST request.
+    - Authenticates the user and logs them in if valid.
+    - Redirects to the user dashboard upon successful login.
+    - Displays an error message for invalid login attempts.
+    - If the user is already authenticated, redirects to the user dashboard.
+    """
+    
     if request.method == 'POST':
         # login logic here
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             login(request, user)
             print(f'User: {username} logged in successfully')
@@ -30,13 +45,30 @@ def login_view(request):
             # Return an 'invalid login' error message
             return render(request, 'main_app/login.html', {
                 'error_msg': 'Invalid username or password'})
-    
-    # Render the login form
-    return render(request, 'main_app/login.html')
+    else:
+        # If it's a GET request, render the login form
+        print('GET request for login page')
+        # Check if the user is already authenticated
+        if request.user.is_authenticated:
+            print(f'User: {request.user.username} is already authenticated')
+            # Redirect to the user dashboard if already logged in
+            return redirect('user_dashboard')   
+        else:
+            # Render the login form
+            return render(request, 'main_app/login.html')
 
 
 
 def signup_view(request):
+    """
+    View function to handle user signup.
+
+    - Renders the signup form on GET request.
+    - Processes submitted form data on POST request.
+    - Validates the form data and creates a new user if valid.
+    - Redirects to the login page upon successful signup.
+    """
+
     if request.method == 'POST':
         # signup logic here
         username = request.POST['username']
@@ -73,6 +105,15 @@ def signup_view(request):
 
 
 def user_dashboard_view(request):
+    """
+    View function to handle displaying the user dashboard.
+
+    - Ensures the user is authenticated before accessing this view.
+    - If the user is not authenticated, redirects them to the login page.
+    - If the user is authenticated, retrieves their custom recipes
+    and renders the user dashboard template.
+    """
+    
     if not request.user.is_authenticated:
         print('user not authenticated')
         return HttpResponseRedirect(reverse('login'))
@@ -81,7 +122,7 @@ def user_dashboard_view(request):
         print([recipe for recipe in request.user.custom_recipes.all()])
         return render(request, 'main_app/user.html', {
             'user': request.user,
-            'custom_recipes': request.user.custom_recipes.all(),
+            'custom_recipes': request.user.custom_recipes.all()
         })
     
 
@@ -95,11 +136,18 @@ def logout_view(request):
 
 
 def recipe_detail_view(request, recipe_id):
+    """
+    View function to handle displaying a custom recipe.
+
+    - Ensures the user is authenticated and owns the recipe.
+    - If the recipe does not exist or the user is not the owner,
+    redirects them to the user dashboard.
+    """
 
     # Before doing anything, check if the user is authenticated
     # If not, redirect them to the login page
     if not request.user.is_authenticated:
-        print('user not authenticated')
+        print('User not authenticated')
         return HttpResponseRedirect(reverse('login'))
     
     # Get vars indicating if recipe exists and if the user is the owner
@@ -115,15 +163,24 @@ def recipe_detail_view(request, recipe_id):
         return HttpResponseRedirect(reverse('user_dashboard'))
     
     elif not recipe_is_users:
-        print(f'User: {request.user.username} is authenticated and but is NOT the owner of the recipe')
-        # Get the recipe object
+        print(f'User: {request.user.username} is authenticated but is NOT the owner of the recipe')
         return HttpResponseRedirect(reverse('user_dashboard'))
 
     else:
         print(f'User: {request.user.username} is authenticated and IS the owner of the recipe!')
         print(f'{CustomRecipe.objects.filter(id=recipe_id)}')
+        recipe_obj = CustomRecipe.objects.filter(id=recipe_id).first()
+        try: 
+            recipe_img_path = recipe_obj.picture.url
+            recipe_img_path = recipe_img_path.split('/')[-1] # get the image name
+            print(f'Recipe Image path: {recipe_img_path}')
+        except:
+            print('No recipe image found')
+            recipe_img_path = None
+
         return render(request, 'main_app/recipe.html', {
-            'recipe': CustomRecipe.objects.filter(id=recipe_id).first(),
+            'recipe': recipe_obj,
+            'recipe_img_path': f'/recipes/{recipe_img_path}'
         })
 
     
@@ -131,8 +188,11 @@ def recipe_detail_view(request, recipe_id):
 def edit_recipe_view(request, recipe_id):
     """
     View function to handle editing an existing custom recipe.
-    Ensures the user owns the recipe and uses RecipeForm correctly.
+
+    - Ensures the user owns the recipe and uses RecipeForm correctly.
+    - Also handles when user tries to edit a recipe's name to one that already exists FOR THEM.
     """
+
     # Get the recipe object or return a 404 error if not found
     recipe = get_object_or_404(CustomRecipe, pk=recipe_id)
 
@@ -162,14 +222,26 @@ def edit_recipe_view(request, recipe_id):
                  form.add_error(None, "Already have a recipe with that name.") # Add error to form
 
     else:
-        # If it's a GET request create a form instance popualted
-        # with the existing recipe data
+        # If GET request create a form instance 
+        # populated with the existing recipe data 
         form = RecipeForm(instance=recipe, user=request.user)
+        recipe_obj = CustomRecipe.objects.filter(id=recipe_id).first()
+        try: 
+            recipe_img_path = recipe_obj.picture.url
+            recipe_img_path = recipe_img_path.split('/')[-1] # get the image name
+            print(f'Recipe Image path: {recipe_img_path}')
+        except:
+            print('No recipe image found')
+            recipe_img_path = None
 
-    # Prepare the context dictionary to pass to the template
+    # Pass this info to template
     context = {
         'form': form,
-        'recipe': recipe # Pass the recipe object for use in the template (e.g., title)
+        'recipe': recipe,
+        'recipe_img_path': f'static/recipes/{recipe_img_path}' # Is NOT working
+        # but not critical for now
+        # shows 404 error when trying 
+        # to access image on the edit page
     }
     # Render the template used for editing recipes.
     return render(request, 'main_app/edit_recipe.html', context)
@@ -177,12 +249,21 @@ def edit_recipe_view(request, recipe_id):
 
 
 def delete_recipe_view(request, recipe_id):
+    """
+    View function to handle deleting a custom recipe.
+
+    - If the recipe does not exist return a 404 error.
+    - If the user is not the owner, redirects them to the user dashboard.
+    - If the user is the owner and the request method is POST, delete the recipe.
+    - Redirects to the user dashboard after deletion.
+    """
+
     # Get the recipe object or return a 404 error if not found
     recipe = get_object_or_404(CustomRecipe, pk=recipe_id)
     # Optional: Check if the logged-in user owns this recipe if necessary
     if recipe.user != request.user:
         # Unauthorized access
-        print(f'User: {request.user.username} is authenticated and but is NOT the owner of the recipe')
+        print(f'User: {request.user.username} is authenticated but is NOT the owner of the recipe')
         return redirect('user_dashboard')
 
     if request.method == 'POST':
@@ -202,8 +283,9 @@ def create_recipe_view(request):
 
     - Renders the recipe form on GET request.
     - Processes submitted form data on POST request.
-    - Uses RecipeForm which associates the new recipe with the logged-in user before saving.
+    - Uses RecipeForm which associates the new recipe with the logged in user before saving.
     - Redirects to the new recipe's detail page upon successful creation.
+    - Handles form validation and error display.
     """
     if request.method == 'POST':
         # If the form was submitted, bind the POST data and files to the form
@@ -229,7 +311,7 @@ def create_recipe_view(request):
         # If it's a GET request, create a form instance.
         form = RecipeForm(user=request.user)
 
-    # Prepare the context dictionary to pass to the template.
+    # Info to pass into template
     context = {
         'form': form
     }
