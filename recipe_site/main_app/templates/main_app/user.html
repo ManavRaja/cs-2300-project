@@ -1,0 +1,114 @@
+{% extends "main_app/user_layout.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  {# Main Dashboard Title #}
+  <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
+    {{ user.username }}'s Dashboard
+  </h1>
+
+  {# Two-column layout using Flexbox #}
+  <div class="flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0">
+
+    {# Left Column: Weekly Meal Plans #}
+    <div class="w-full md:w-1/2 bg-white p-6 rounded-lg shadow-md flex flex-col text-center">
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">My Weekly Meal Plans</h2>
+
+      {# Date Finder Form #}
+      <form action="#" method="GET" class="space-y-4 mb-6">
+        <div>
+          <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Find plan by start date:</label>
+          <div class="flex items-center space-x-2">
+              <input type="date" id="start_date" name="start_date" required
+                     class="flex-grow block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+              <button type="submit"
+                      class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow transition duration-150 ease-in-out whitespace-nowrap">
+                Find Plan
+              </button>
+          </div>
+        </div>
+      </form>
+
+      {# Create New Meal Plan Button #}
+      <a href="#"
+         class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out mt-auto">
+        Create New Meal Plan
+      </a>
+    </div>
+
+    {# Right Column: Custom Recipes #}
+    <div class="w-full md:w-1/2 bg-white p-6 rounded-lg shadow-md flex flex-col text-center">
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">My Custom Recipes</h2>
+
+      {# Recipe Selector - Updated Section #}
+      <div class="mb-6 flex-grow"> {# Use flex-grow to allow content above to push button down #}
+        <label for="recipe_select" class="block text-sm font-medium text-gray-700 mb-1">Select a recipe to view:</label>
+        <div class="flex items-center space-x-2"> {# Flex container for select and button #}
+          <select id="recipe_select" name="recipe_select"
+                  class="flex-grow block w-full pl-3 pr-2 py-2 text-base border-gray-300 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md shadow-sm appearance-none text-center">
+                  
+            <option value="" disabled selected>-- Select a Recipe --</option>
+            {% for recipe in custom_recipes %}
+              {# Ensure your recipe object has 'id' and 'name' attributes #}
+              <option value="{{ recipe.id }}">{{ recipe.name }}</option>
+            {% empty %}
+              <option value="" disabled>You haven't added any recipes yet.</option>
+            {% endfor %}
+          </select>
+          {# ADDED: View Recipe Button #}
+          <button type="button" onclick="navigateToRecipe()" {# Call function on click #}
+                  class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow transition duration-150 ease-in-out whitespace-nowrap">
+            View
+          </button>
+        </div>
+        {# Basic scrollability is handled by the browser if options exceed height #}
+        {# For advanced searchability, consider libraries like Select2 or TomSelect #}
+      </div>
+
+      {# Create New Recipe Button #}
+      <a href="{% url 'create_recipe' %}"
+         {# Ensure you have a URL pattern for creating recipes #}
+         {# and a corresponding view to handle the GET request #}
+         {# Using {% url 'your_create_url_name' %} is the recommended Django way #}
+         class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out mt-auto">
+          Create New Recipe
+      </a>
+
+    </div>
+
+  </div> {# End of two-column layout #}
+</div> {# End of container #}
+
+{# JavaScript for Recipe Navigation - Updated #}
+<script>
+  // MODIFIED: Removed the selectElement parameter
+  function navigateToRecipe() {
+    // Get the select element by its ID
+    const selectElement = document.getElementById('recipe_select');
+    const recipeId = selectElement.value;
+
+    if (recipeId) {
+      // Construct the URL using Django's url template tag is tricky in JS.
+      // A common pattern is to store a base URL pattern in a data attribute
+      // or generate it server-side and pass it to JS.
+      // For simplicity here, we assume a fixed URL structure.
+      // Replace '/recipes/' with your actual URL path structure if different.
+      // Ideally, use Django's `reverse` in the view to pass the base URL pattern.
+      // Example using a hypothetical base URL:
+      // const baseUrl = "{% url 'recipe_detail' 0 %}".replace('0', ''); // Get base URL pattern
+      // window.location.href = baseUrl + recipeId;
+
+      // Simpler approach assuming /recipe/<id>/ structure:
+      // *** IMPORTANT: Make sure this path matches your Django urls.py pattern ***
+      window.location.href = `recipe/${recipeId}/`; // Adjust this path as needed!
+    } else {
+      // Optional: Provide feedback if no recipe is selected
+      console.log("No recipe selected.");
+      // You could also disable the button initially and enable it when a valid option is chosen.
+    }
+  }
+</script>
+
+{% endblock %}
+
