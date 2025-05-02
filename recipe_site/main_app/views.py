@@ -169,8 +169,18 @@ def recipe_detail_view(request, recipe_id):
     else:
         print(f'User: {request.user.username} is authenticated and IS the owner of the recipe!')
         print(f'{CustomRecipe.objects.filter(id=recipe_id)}')
+        recipe_obj = CustomRecipe.objects.filter(id=recipe_id).first()
+        try: 
+            recipe_img_path = recipe_obj.picture.url
+            recipe_img_path = recipe_img_path.split('/')[-1] # get the image name
+            print(f'Recipe Image path: {recipe_img_path}')
+        except:
+            print('No recipe image found')
+            recipe_img_path = None
+
         return render(request, 'main_app/recipe.html', {
-            'recipe': CustomRecipe.objects.filter(id=recipe_id).first(),
+            'recipe': recipe_obj,
+            'recipe_img_path': f'/recipes/{recipe_img_path}'
         })
 
     
@@ -182,6 +192,7 @@ def edit_recipe_view(request, recipe_id):
     - Ensures the user owns the recipe and uses RecipeForm correctly.
     - Also handles when user tries to edit a recipe's name to one that already exists FOR THEM.
     """
+
     # Get the recipe object or return a 404 error if not found
     recipe = get_object_or_404(CustomRecipe, pk=recipe_id)
 
@@ -214,11 +225,23 @@ def edit_recipe_view(request, recipe_id):
         # If GET request create a form instance 
         # populated with the existing recipe data 
         form = RecipeForm(instance=recipe, user=request.user)
+        recipe_obj = CustomRecipe.objects.filter(id=recipe_id).first()
+        try: 
+            recipe_img_path = recipe_obj.picture.url
+            recipe_img_path = recipe_img_path.split('/')[-1] # get the image name
+            print(f'Recipe Image path: {recipe_img_path}')
+        except:
+            print('No recipe image found')
+            recipe_img_path = None
 
     # Pass this info to template
     context = {
         'form': form,
-        'recipe': recipe #recipe object
+        'recipe': recipe,
+        'recipe_img_path': f'static/recipes/{recipe_img_path}' # Is NOT working
+        # but not critical for now
+        # shows 404 error when trying 
+        # to access image on the edit page
     }
     # Render the template used for editing recipes.
     return render(request, 'main_app/edit_recipe.html', context)
