@@ -25,7 +25,7 @@
   <ul class="space-y-2">
     {% for recipe in recipes %}
       <li>
-        <a href="{% url 'recipe' recipe.id %}" class="text-blue-600 hover:underline">{{ recipe.name }}</a>
+        <a href="{% url 'recipe_detail' recipe.id %}" class="text-blue-600 hover:underline">{{ recipe.name }}</a>
       </li>
     {% empty %}
       <li>No recipes found.</li>
