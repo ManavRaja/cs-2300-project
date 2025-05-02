@@ -235,3 +235,10 @@ def create_recipe_view(request):
     }
     # Render the template used for creating recipes.
     return render(request, 'main_app/create_recipe.html', context)
+
+from django.shortcuts import render
+from .models import CustomRecipe  # make sure your model is imported
+
+def all_recipes(request):
+    recipes = CustomRecipe.objects.all()
+    return render(request, 'main_app/all_recipes.html', {'recipes': recipes})
