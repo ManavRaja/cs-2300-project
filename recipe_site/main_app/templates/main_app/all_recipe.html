@@ -1,0 +1,36 @@
+{% extends "main_app/user.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+
+  <h1 class="text-2xl font-bold mb-4">All Recipes</h1>
+
+  {# Filters Section #}
+  <form method="get" class="mb-6">
+    <label for="cuisine">Filter by Cuisine:</label>
+    <select name="cuisine" id="cuisine" onchange="this.form.submit()" class="ml-2 border p-1 rounded">
+      <option value="">All</option>
+      <option value="Indian">Indian</option>
+      <option value="Chinese">Chinese</option>
+      <option value="Japanese">Japanese</option>
+      <option value="Mexican">Mexican</option>
+      <option value="French">French</option>
+      <option value="Italian">Italian</option>
+      <option value="Greek">Greek</option>
+      {# Add more cuisines as needed #}
+    </select>
+  </form>
+
+  {# Recipes List #}
+  <ul class="space-y-2">
+    {% for recipe in recipes %}
+      <li>
+        <a href="{% url 'recipe_detail' recipe.id %}" class="text-blue-600 hover:underline">{{ recipe.name }}</a>
+      </li>
+    {% empty %}
+      <li>No recipes found.</li>
+    {% endfor %}
+  </ul>
+
+</div>
+{% endblock %}
