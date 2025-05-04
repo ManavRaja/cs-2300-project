@@ -12,6 +12,7 @@ urlpatterns = [
     path('user/recipe/<int:recipe_id>/deleterecipe/', views.delete_recipe_view, name='delete_recipe'),
     path('user/createrecipe/', views.create_recipe_view, name='create_recipe'),
     path('allrecipes/',views.all_recipes, name='all_recipes'),
-    path("user/create-meal-plan/", views.create_meal_plan, name="create_meal_plan")
+    path("user/create-meal-plan/", views.create_meal_plan, name="create_meal_plan"),
+    path("user/view-meal-plan/<int:meal_plan_id>", views.view_meal_plan, name="view_meal_plan")
     
 ]

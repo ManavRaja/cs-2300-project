@@ -427,3 +427,50 @@ def create_meal_plan(request):
 
     context = {"recipes": recipes, "days": days}
     return render(request, "main_app/create_meal_plan.html", context)
+
+
+def view_meal_plan(request, meal_plan_id):
+    if not request.user.is_authenticated:
+        print("user not authenticated")
+        return HttpResponseRedirect(reverse("login"))
+
+    meal_plan_exists = WeeklyMealPlan.objects.filter(id=meal_plan_id).exists()
+    meal_plan_is_users = WeeklyMealPlan.objects.filter(
+        id=meal_plan_id, user=request.user
+    ).exists()
+
+    if not meal_plan_exists:
+        print(f"Meal Plan with ID {meal_plan_id} does not exist")
+        return HttpResponseRedirect(reverse("user_dashboard"))
+    elif not meal_plan_is_users:
+        print(
+            f"User: {request.user.username} is authenticated but is NOT the owner of the meal plan"
+        )
+        return HttpResponseRedirect(reverse("user_dashboard"))
+    else:
+        meal_plan = WeeklyMealPlan.objects.get(id=meal_plan_id)
+        entries = meal_plan.entries.all()
+        ordered_days = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ]
+        meal_order = ["Breakfast", "Lunch", "Dinner"]
+
+        for entry in entries:
+            if entry.recipe and entry.recipe.picture:
+                entry.recipe.modified_picture_url = entry.recipe.picture.url.replace(
+                    "/recipes", "/static"
+                )
+
+        context = {
+            "meal_plan": meal_plan,
+            "entries": entries,
+            "ordered_days": ordered_days,
+            "meal_order": meal_order,
+        }
+        return render(request, "main_app/view_meal_plan.html", context)
