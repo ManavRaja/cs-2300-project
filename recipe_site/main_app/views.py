@@ -3,9 +3,9 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .models import CustomRecipe, PremadeRecipe, WeeklyMealPlan
+from .models import CustomRecipe, PremadeRecipe, WeeklyMealPlan, WeeklyMealPlanEntry
 from .forms import RecipeForm
-from datetime import date
+from datetime import date, datetime
 
 
 # Create your views here.
@@ -345,17 +345,9 @@ def create_recipe_view(request):
     return render(request, "main_app/create_recipe.html", context)
 
 
-from django.shortcuts import render
-from .models import CustomRecipe  # make sure your model is imported
-
-
 def all_recipes(request):
     recipes = CustomRecipe.objects.all()
     return render(request, "main_app/all_recipe.html", {"recipes": recipes})
-
-
-from datetime import datetime, date
-from .models import WeeklyMealPlanEntry
 
 
 def create_meal_plan(request):
