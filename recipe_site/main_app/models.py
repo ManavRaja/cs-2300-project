@@ -6,18 +6,22 @@ import uuid
 
 # Recipe Table
 class Recipe(models.Model):
-    name = models.CharField(max_length=200, unique=False, default='My Recipe Name', null=False, blank=False)
+    name = models.CharField(
+        max_length=200, unique=False, default="My Recipe Name", null=False, blank=False
+    )
     description = models.TextField(null=True, blank=True)
     instructions = models.TextField(null=True, blank=True)
-    picture = models.ImageField(upload_to='main_app/static/recipes', null=True, blank=True)
+    picture = models.ImageField(
+        upload_to="main_app/static/recipes", null=True, blank=True
+    )
     protein = models.PositiveIntegerField(null=True, blank=True)
     calories = models.PositiveIntegerField(null=True, blank=True)
     fat = models.PositiveIntegerField(null=True, blank=True)
     carbohydrates = models.PositiveIntegerField(null=True, blank=True)
     ingredients = models.TextField(null=True, blank=True)
     cook_time = models.FloatField(
-        validators=[MinValueValidator(0.0)],
-        null=True, blank=True)
+        validators=[MinValueValidator(0.0)], null=True, blank=True
+    )
     cuisine = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
@@ -26,7 +30,7 @@ class Recipe(models.Model):
     # def save(self, *args, **kwargs):
     #     self.full_clean()  # Call clean() during save
     #     super().save(*args, **kwargs)
- 
+
 
 # Premade_Recipe Table
 class PremadeRecipe(Recipe):
@@ -36,12 +40,14 @@ class PremadeRecipe(Recipe):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'pk={self.pk}, name={self.name}, (PREMADE)'
-    
+        return f"pk={self.pk}, name={self.name}, (PREMADE)"
+
 
 # Custom_Recipe Table
 class CustomRecipe(Recipe):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='custom_recipes')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="custom_recipes"
+    )
 
     class Meta:
         unique_together = (("user", "name"),)
@@ -51,15 +57,17 @@ class CustomRecipe(Recipe):
     #     super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'pk={self.pk}, name={self.name}, username={self.user.username} (CUSTOM)'
+        return f"pk={self.pk}, name={self.name}, username={self.user.username} (CUSTOM)"
 
 
 # Weekly_Meal_Plan Table
 class WeeklyMealPlan(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='meal_plans')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="meal_plans")
     start_date = models.DateField(null=False, blank=False)
-    recipes = models.ManyToManyField(CustomRecipe, null=True, blank=True, related_name='meal_plans')
-    
+    recipes = models.ManyToManyField(
+        PremadeRecipe, null=True, blank=True, related_name="meal_plans"
+    )
+
     class Meta:
         unique_together = (("user", "start_date"),)
 
@@ -68,54 +76,39 @@ class WeeklyMealPlan(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'Weekly Meal Plan for {self.user.username} starting {self.start_date}'
+        return f"Weekly Meal Plan for {self.user.username} starting {self.start_date}"
 
 
+class WeeklyMealPlanEntry(models.Model):
+    meal_plan = models.ForeignKey(
+        WeeklyMealPlan, on_delete=models.CASCADE, related_name="entries"
+    )
+    day = models.CharField(max_length=20)  # e.g. "Monday"
+    meal_time = models.CharField(max_length=20)  # e.g. "breakfast", "lunch", "dinner"
+    recipe = models.ForeignKey(PremadeRecipe, on_delete=models.CASCADE)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def __str__(self):
+        return f"{self.day} {self.meal_time}: {self.recipe.name}"
 
 
 # # Premade_Recipe Table
 # class PremadeRecipe(models.Model):
-#     premade_recipe_id = models.OneToOneField(Recipe, 
+#     premade_recipe_id = models.OneToOneField(Recipe,
 #                                   on_delete=models.CASCADE,
 #                                   primary_key=True)
-    
+
 #     def save(self, *args, **kwargs):
 #         self.full_clean()  # Call clean() during save
 #         super().save(*args, **kwargs)
-    
+
 #     def __str__(self):
 #         return f'Premade Recipe: {self.recipe_id.name} ({self.recipe_id.recipe_id})'
 
 # # User Table
 # class User(models.Model):
 #     user_id = models.UUIDField(
-#         primary_key=True, 
-#         default=uuid.uuid4, 
+#         primary_key=True,
+#         default=uuid.uuid4,
 #         editable=False)
 #     username = models.CharField(max_length=150, unique=True, null=False, blank=False)
 #     password = models.CharField(max_length=128, null=False, blank=False)
@@ -129,7 +122,7 @@ class WeeklyMealPlan(models.Model):
 #         ],
 #         null=False,
 #         blank=False)
-    
+
 #     def __str__(self):
 #         return f'Username: {self.username}, Account Type: {self.account_type} ({self.user_id})'
 
@@ -137,23 +130,23 @@ class WeeklyMealPlan(models.Model):
 # # Custom_Recipe Table
 # class CustomRecipe(models.Model):
 #     pk = models.CompositePrimaryKey('recipe_id', 'user_id')
-#     recipe_id = models.OneToOneField(Recipe, 
+#     recipe_id = models.OneToOneField(Recipe,
 #                                     on_delete=models.CASCADE,
 #                                     null=False,
 #                                     blank=False)
-#     user_id = models.OneToOneField(User, 
+#     user_id = models.OneToOneField(User,
 #                                     on_delete=models.CASCADE,
 #                                     null=False,
 #                                     blank=False)
 
-    
+
 #     def __str__(self):
 #         return f'Custom Recipe: {self.recipe_id.name} by {self.user_id.username} ({self.user_id.user_id})'
 
 
 # # Personal_Account Table
 # class PersonalAccount(models.Model):
-#     user_id = models.OneToOneField(User, 
+#     user_id = models.OneToOneField(User,
 #                                     on_delete=models.CASCADE,
 #                                     null=False,
 #                                     blank=False,
@@ -166,7 +159,7 @@ class WeeklyMealPlan(models.Model):
 
 # # Culinary_Expert Table
 # class CulinaryExpert(models.Model):
-#     user_id = models.OneToOneField(User, 
+#     user_id = models.OneToOneField(User,
 #                                 on_delete=models.CASCADE,
 #                                 null=False,
 #                                 blank=False,
@@ -181,7 +174,7 @@ class WeeklyMealPlan(models.Model):
 # # Weekly_Meal_Plan Table
 # class WeeklyMealPlan(models.Model):
 #     pk = models.CompositePrimaryKey('user_id', 'start_date')
-#     user_id = models.OneToOneField(User, 
+#     user_id = models.OneToOneField(User,
 #                                  on_delete=models.CASCADE,
 #                                  null=False,
 #                                  blank=False)
@@ -199,11 +192,11 @@ class WeeklyMealPlan(models.Model):
 # # Weekly_Meal_Plan_Recipe Table
 # class WeeklyMealPlanRecipe(models.Model):
 #     pk = models.CompositePrimaryKey('meal_plan_id', 'recipe_id')
-#     meal_plan_id = models.OneToOneField(WeeklyMealPlan, 
+#     meal_plan_id = models.OneToOneField(WeeklyMealPlan,
 #                                       on_delete=models.CASCADE,
 #                                       null=False,
 #                                       blank=False)
-#     recipe_id = models.OneToOneField(PremadeRecipe, 
+#     recipe_id = models.OneToOneField(PremadeRecipe,
 #                                   on_delete=models.CASCADE,
 #                                   null=False,
 #                                   blank=False)
@@ -214,27 +207,6 @@ class WeeklyMealPlan(models.Model):
 
 #     def __str__(self):
 #         return f'Meal Plan ID: {self.meal_plan_id} Recipe ID: {self.recipe_id}'
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # Manav's code below
@@ -284,7 +256,7 @@ class WeeklyMealPlan(models.Model):
 
 #     def __str__(self):
 #         return f"Personal Account for {self.user_id.username}"
-    
+
 
 # class CulinaryExpert(models.Model):
 #     """
@@ -380,9 +352,9 @@ class WeeklyMealPlan(models.Model):
 #         unique_together = (("user_id", "custom_recipe_id"),)
 
 #     # Now points to built-in User
-#     user_id = models.OneToOneField(User, 
-#                                 on_delete=models.CASCADE)  
-#     custom_recipe_id = models.OneToOneField(Recipe, 
+#     user_id = models.OneToOneField(User,
+#                                 on_delete=models.CASCADE)
+#     custom_recipe_id = models.OneToOneField(Recipe,
 #                                   on_delete=models.CASCADE,
 #                                   null=False,
 #                                   blank=False)

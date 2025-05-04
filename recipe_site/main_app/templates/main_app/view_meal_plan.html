@@ -1,0 +1,80 @@
+{% extends "main_app/user_layout.html" %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <h1 class="text-3xl font-bold text-gray-800 text-center mb-6">
+    Meal Plan for {{ meal_plan.start_date }}
+  </h1>
+
+  {% for day in ordered_days %}
+  <div class="mb-8">
+    <h2 class="text-2xl font-semibold text-gray-700 mb-4">{{ day }}</h2>
+    <table class="min-w-full bg-white border border-gray-200">
+      <thead>
+        <tr>
+          <th class="py-2 px-4 border-b">Meal Time</th>
+          <th class="py-2 px-4 border-b">Recipe</th>
+          <th class="py-2 px-4 border-b">Picture</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for meal in meal_order %}
+          {% for entry in entries %}
+            {% if entry.day == day and entry.meal_time|capfirst == meal %}
+              <tr>
+                <td class="py-2 px-4 border-b">{{ meal }}</td>
+                <td class="py-2 px-4 border-b">
+                  {% if entry.recipe %}
+                    <a href="{% url 'recipe_detail' entry.recipe.id %}" target="_blank">
+                      {{ entry.recipe.name }}
+                    </a>
+                  {% else %}
+                    Not Selected
+                  {% endif %}
+                </td>
+                <td class="py-2 px-4 border-b">
+                  {% if entry.recipe and entry.recipe.picture %}
+                    <a href="{% url 'recipe_detail' entry.recipe.id %}" target="_blank">
+                      <img src="{{ entry.recipe.modified_picture_url }}" alt="{{ entry.recipe.name }}" class="w-20 h-20 object-cover rounded" />
+                    </a>
+                  {% else %}
+                    <span class="text-gray-500">No Image</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endfor %}
+
+  <!-- Ingredients List Section -->
+  <div class="mt-8">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Ingredient Lists</h2>
+    {% regroup entries by recipe as recipe_groups %}
+    {% for group in recipe_groups %}
+      {% if group.grouper and group.grouper.ingredients %}
+        <details class="mb-4">
+          <summary class="text-xl font-bold cursor-pointer">
+            {{ group.grouper.name }} ({{ group.list|length }} x)
+          </summary>
+          <div class="mt-2">
+            <pre class="bg-gray-100 p-2 rounded text-gray-700 whitespace-pre-wrap">
+{{ group.grouper.ingredients }}
+            </pre>
+          </div>
+        </details>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="mt-8 text-center">
+    <a href="{% url 'user_dashboard' %}" class="text-orange-600 hover:text-orange-800 font-medium">
+      &larr; Back to Dashboard
+    </a>
+  </div>
+</div>
+{% endblock %}
