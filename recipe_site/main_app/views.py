@@ -200,18 +200,30 @@ def recipe_detail_view(request, recipe_id):
             {"recipe": recipe_obj, "recipe_img_path": f"/recipes/{recipe_img_path}"},
         )
 
+
 def Premade_recipe_detail_view(request, recipe_id):
     if not request.user.is_authenticated:
-        print('user not authenticated')
-        return HttpResponseRedirect(reverse('login')) 
+        print("user not authenticated")
+        return HttpResponseRedirect(reverse("login"))
 
     Recipe = PremadeRecipe.objects.filter(id=recipe_id).all()
-    
+
     if Recipe.exists():
-        print(f'{PremadeRecipe.objects.filter(id=recipe_id)}')
-        return render(request, 'main_app/Premade_recipe.html', {
-            'recipe': PremadeRecipe.objects.filter(id=recipe_id).first(),
-        })
+        print(f"{PremadeRecipe.objects.filter(id=recipe_id)}")
+
+        recipe_formatted = PremadeRecipe.objects.filter(id=recipe_id).first()
+        recipe_formatted.modified_picture_url = recipe_formatted.picture.url.replace(
+            "/recipes", "/static"
+        )
+
+        return render(
+            request,
+            "main_app/Premade_recipe.html",
+            {
+                "recipe": recipe_formatted,
+            },
+        )
+
 
 def edit_recipe_view(request, recipe_id):
     """
@@ -359,7 +371,7 @@ def create_recipe_view(request):
 
 def all_recipes(request):
     recipes = PremadeRecipe.objects.all()
-    return render(request, 'main_app/all_recipe.html', {'recipes': recipes})
+    return render(request, "main_app/all_recipe.html", {"recipes": recipes})
 
 
 def create_meal_plan(request):
