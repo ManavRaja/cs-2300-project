@@ -26,7 +26,7 @@
                 <td class="py-2 px-4 border-b">{{ meal }}</td>
                 <td class="py-2 px-4 border-b">
                   {% if entry.recipe %}
-                    <a href="{% url 'recipe_detail' entry.recipe.id %}" target="_blank">
+                    <a href="{% url 'premade_recipe' entry.recipe.id %}" target="_blank">
                       {{ entry.recipe.name }}
                     </a>
                   {% else %}
@@ -35,7 +35,7 @@
                 </td>
                 <td class="py-2 px-4 border-b">
                   {% if entry.recipe and entry.recipe.picture %}
-                    <a href="{% url 'recipe_detail' entry.recipe.id %}" target="_blank">
+                    <a href="{% url 'premade_recipe' entry.recipe.id %}" target="_blank">
                       <img src="{{ entry.recipe.modified_picture_url }}" alt="{{ entry.recipe.name }}" class="w-20 h-20 object-cover rounded" />
                     </a>
                   {% else %}
