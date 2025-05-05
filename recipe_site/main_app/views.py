@@ -116,6 +116,8 @@ def recipe_detail_view(request, recipe_id):
     
     elif not recipe_is_users:
         print(f'User: {request.user.username} is authenticated and but is NOT the owner of the recipe')
+        
+    
         # Get the recipe object
         return HttpResponseRedirect(reverse('user_dashboard'))
 
@@ -125,8 +127,22 @@ def recipe_detail_view(request, recipe_id):
         return render(request, 'main_app/recipe.html', {
             'recipe': CustomRecipe.objects.filter(id=recipe_id).first(),
         })
+        
+def Premade_recipe_detail_view(request, recipe_id):
+    if not request.user.is_authenticated:
+        print('user not authenticated')
+        return HttpResponseRedirect(reverse('login')) 
 
+    Recipe = PremadeRecipe.objects.filter(id=recipe_id).all()
     
+    if Recipe.exists():
+        print(f'{PremadeRecipe.objects.filter(id=recipe_id)}')
+        return render(request, 'main_app/Premade_recipe.html', {
+            'recipe': PremadeRecipe.objects.filter(id=recipe_id).first(),
+        })
+     
+
+
 
 def edit_recipe_view(request, recipe_id):
     """
