@@ -78,18 +78,28 @@ WSGI_APPLICATION = 'recipe_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-db_password = getenv("DB_PASSWORD") 
+db_password = getenv('DB_PASSWORD')
 
-DATABASES = {
-        "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": db_password,
-        "HOST": "vps.manavrv.dev",
-        "PORT": "5432",
-    }
-}
+if db_password=='local-dev':
+    # NOTE: TEMPORARY DATABASE SETTINGS
+    # For local development, we can use SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }  
+else:
+    DATABASES = {
+            "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "postgres",
+            "USER": "postgres",
+            "PASSWORD": db_password,
+            "HOST": "vps.manavrv.dev",
+            "PORT": "5432",
+        }
+  }  
 
 
 # Password validation
