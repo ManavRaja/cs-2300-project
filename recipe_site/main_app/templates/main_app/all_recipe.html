@@ -3,9 +3,24 @@
 {% block content %}
 <div class="max-w-4xl mx-auto py-8">
 
-  <h1 class="text-2xl font-bold mb-4">All Recipes</h1>
+  <h1 class="text-2xl font-bold mb-4">ALL RECIPES</h1>
 
-  {# Filters Section #}
+  {# Filters Section for Cook time #}
+  <form method="get" class="mb-6">
+    <label for="Cook-time">Filter by Cook-time:</label>
+    <select name="Cook-time" id="Cook-time" onchange="this.form.submit()" class="ml-2 border p-1 rounded">
+      <option value="">None</option>
+      <option value="10 mins">10 mins</option>
+      <option value="15 mins">15 mins</option>
+      <option value="20 mins">20 mins</option>
+      <option value="30 mins">30 mins</option>
+      <option value="1 hr">1 hr</option>
+      <option value="1 hr 30 mins">1 hr 30 mins</option>
+      {# Add more options of time as needed #}
+    </select>
+  </form>
+
+  {# Filters Section for cuisines #}
   <form method="get" class="mb-6">
     <label for="cuisine">Filter by Cuisine:</label>
     <select name="cuisine" id="cuisine" onchange="this.form.submit()" class="ml-2 border p-1 rounded">
@@ -20,15 +35,29 @@
       {# Add more cuisines as needed #}
     </select>
   </form>
+  {# Filters Section for dietary restrictions #}
+  <form method="get" class="mb-6">
+    <label for="Dietary">Filter by Dietary restrictions:</label>
+    <select name="Dietary" id="Dietary" onchange="this.form.submit()" class="ml-2 border p-1 rounded">
+      <option value="">None</option>
+      <option value="Keto">Keto</option>
+      <option value="Gluten free">Gluten free</option>
+      <option value="Dairy-free">Dairy-free</option>
+      <option value="Vegan">Vegan</option>
+      <option value="Vegetarian">Vegetarian</option>
+      <option value="Diabetes">Diabetes</option>
+      {# Add more restrictions as needed #}
+    </select>
+  </form>
 
   {# Recipes List #}
-  <ul class="space-y-2">
+  <ul class="grid grid-cols-2 gap-4"> {#  2 columns #}
     {% for recipe in recipes %}
-      <li>
-        <a href="{% url 'recipe_detail' recipe.id %}" class="text-blue-600 hover:underline">{{ recipe.name }}</a>
+      <li> {# Each li is now a grid item #}
+        <a href="{% url 'premade_recipe' recipe.id %}" class="text-blue-600 hover:underline">{{ recipe.name }}</a>
       </li>
     {% empty %}
-      <li>No recipes found.</li>
+      <li class="col-span-2">No recipes found.</li> {# empty message #}
     {% endfor %}
   </ul>
 
