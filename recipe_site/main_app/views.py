@@ -383,9 +383,12 @@ def all_recipes(request):
     if cook_time:
         try:
             cook_time_val = float(cook_time)
-            recipes = recipes.filter(cook_time__lte=cook_time_val)
+            recipes = recipes.filter(cook_time__lte=cook_time_val) # Less than or equal to the time selected
         except ValueError:
             pass
+    for recipe in recipes:
+        if recipe.picture:
+            recipe.modified_picture_url = recipe.picture.url.replace("/recipes", "/static")
     return render(request, "main_app/all_recipe.html", {"recipes": recipes})
 
 

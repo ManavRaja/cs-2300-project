@@ -38,8 +38,19 @@
   {# Recipes List #}
   <ul class="grid grid-cols-2 gap-4">
     {% for recipe in recipes %}
-      <li>
-        <a href="{% url 'premade_recipe' recipe.id %}" class="text-blue-600 hover:underline">{{ recipe.name }}</a>
+      <li style="padding: 1rem;" class="grid grid-cols-2 items-center gap-2 shadow-lg">
+        
+        <a href="{% url 'premade_recipe' recipe.id %}" target="_blank" class="text-left">
+          {# Recipe name first #}
+          {{ recipe.name }}
+
+          {#  Cuisine Display #}
+          {% if recipe.cuisine %}
+            <p class="text-sm text-gray-500">{{ recipe.cuisine }}</p>
+          {% endif %}
+        </a>
+        {# Image on the right #}
+        <img style="margin: 1.5rem;" src="{{ recipe.modified_picture_url }}" alt="{{ recipe.name }}" class="w-20 h-20 object-cover rounded justify-self-end" />
       </li>
     {% empty %}
       <li class="col-span-2">No recipes found.</li>
