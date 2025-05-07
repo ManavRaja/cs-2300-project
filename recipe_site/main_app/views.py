@@ -206,21 +206,26 @@ def Premade_recipe_detail_view(request, recipe_id):
         print("user not authenticated")
         return HttpResponseRedirect(reverse("login"))
 
-    Recipe = PremadeRecipe.objects.filter(id=recipe_id).all()
+    qs = PremadeRecipe.objects.filter(id=recipe_id)
+    if qs.exists():
+        recipe = qs.first()
 
-    if Recipe.exists():
-        print(f"{PremadeRecipe.objects.filter(id=recipe_id)}")
+        recipe.modified_picture_url = recipe.picture.url.replace("/recipes", "/static")
 
-        recipe_formatted = PremadeRecipe.objects.filter(id=recipe_id).first()
-        recipe_formatted.modified_picture_url = recipe_formatted.picture.url.replace(
-            "/recipes", "/static"
-        )
-
+        if recipe.instructions:
+            instructions_list = [
+                line.strip()
+                for line in recipe.instructions.splitlines()
+                if line.strip()
+            ]
+        else:
+            instructions_list = []
         return render(
             request,
             "main_app/Premade_recipe.html",
             {
-                "recipe": recipe_formatted,
+                "recipe": recipe,
+                "instructions_list": instructions_list,
             },
         )
 
@@ -371,6 +376,16 @@ def create_recipe_view(request):
 
 def all_recipes(request):
     recipes = PremadeRecipe.objects.all()
+    cuisine = request.GET.get("cuisine", "").strip()
+    if cuisine:
+        recipes = recipes.filter(cuisine=cuisine)
+    cook_time = request.GET.get("cook_time", "").strip()
+    if cook_time:
+        try:
+            cook_time_val = float(cook_time)
+            recipes = recipes.filter(cook_time__lte=cook_time_val)
+        except ValueError:
+            pass
     return render(request, "main_app/all_recipe.html", {"recipes": recipes})
 
 
@@ -495,9 +510,9 @@ def view_meal_plan(request, meal_plan_id):
 def delete_meal_plan_view(request, meal_plan_id):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
-    
+
     meal_plan = get_object_or_404(WeeklyMealPlan, id=meal_plan_id, user=request.user)
-    
+
     if request.method == "POST":
         meal_plan.delete()
         return redirect("user_dashboard")

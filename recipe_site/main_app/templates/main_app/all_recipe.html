@@ -2,64 +2,48 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto py-8">
-
   <h1 class="text-2xl font-bold mb-4">ALL RECIPES</h1>
 
-  {# Filters Section for Cook time #}
+  {# Filters for Cook time and Cuisine #}
   <form method="get" class="mb-6">
-    <label for="Cook-time">Filter by Cook-time:</label>
-    <select name="Cook-time" id="Cook-time" onchange="this.form.submit()" class="ml-2 border p-1 rounded">
-      <option value="">None</option>
-      <option value="10 mins">10 mins</option>
-      <option value="15 mins">15 mins</option>
-      <option value="20 mins">20 mins</option>
-      <option value="30 mins">30 mins</option>
-      <option value="1 hr">1 hr</option>
-      <option value="1 hr 30 mins">1 hr 30 mins</option>
-      {# Add more options of time as needed #}
-    </select>
-  </form>
-
-  {# Filters Section for cuisines #}
-  <form method="get" class="mb-6">
-    <label for="cuisine">Filter by Cuisine:</label>
-    <select name="cuisine" id="cuisine" onchange="this.form.submit()" class="ml-2 border p-1 rounded">
-      <option value="">All</option>
-      <option value="Indian">Indian</option>
-      <option value="Chinese">Chinese</option>
-      <option value="Japanese">Japanese</option>
-      <option value="Mexican">Mexican</option>
-      <option value="French">French</option>
-      <option value="Italian">Italian</option>
-      <option value="Greek">Greek</option>
-      {# Add more cuisines as needed #}
-    </select>
-  </form>
-  {# Filters Section for dietary restrictions #}
-  <form method="get" class="mb-6">
-    <label for="Dietary">Filter by Dietary restrictions:</label>
-    <select name="Dietary" id="Dietary" onchange="this.form.submit()" class="ml-2 border p-1 rounded">
-      <option value="">None</option>
-      <option value="Keto">Keto</option>
-      <option value="Gluten free">Gluten free</option>
-      <option value="Dairy-free">Dairy-free</option>
-      <option value="Vegan">Vegan</option>
-      <option value="Vegetarian">Vegetarian</option>
-      <option value="Diabetes">Diabetes</option>
-      {# Add more restrictions as needed #}
-    </select>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+      <div>
+        <label for="cook_time">Filter by Cook time:</label>
+        <select name="cook_time" id="cook_time" onchange="this.form.submit()" class="ml-2 border p-1 rounded">
+          <option value="" {% if not request.GET.cook_time %}selected{% endif %}>None</option>
+          <option value="10" {% if request.GET.cook_time == "10" %}selected{% endif %}>10 mins</option>
+          <option value="15" {% if request.GET.cook_time == "15" %}selected{% endif %}>15 mins</option>
+          <option value="20" {% if request.GET.cook_time == "20" %}selected{% endif %}>20 mins</option>
+          <option value="30" {% if request.GET.cook_time == "30" %}selected{% endif %}>30 mins</option>
+          <option value="60" {% if request.GET.cook_time == "60" %}selected{% endif %}>1 hr</option>
+          <option value="90" {% if request.GET.cook_time == "90" %}selected{% endif %}>1 hr 30 mins</option>
+        </select>
+      </div>
+      <div>
+        <label for="cuisine">Filter by Cuisine:</label>
+        <select name="cuisine" id="cuisine" onchange="this.form.submit()" class="ml-2 border p-1 rounded">
+          <option value="" {% if not request.GET.cuisine %}selected{% endif %}>All</option>
+          <option value="Indian" {% if request.GET.cuisine == "Indian" %}selected{% endif %}>Indian</option>
+          <option value="Chinese" {% if request.GET.cuisine == "Chinese" %}selected{% endif %}>Chinese</option>
+          <option value="Japanese" {% if request.GET.cuisine == "Japanese" %}selected{% endif %}>Japanese</option>
+          <option value="Mexican" {% if request.GET.cuisine == "Mexican" %}selected{% endif %}>Mexican</option>
+          <option value="French" {% if request.GET.cuisine == "French" %}selected{% endif %}>French</option>
+          <option value="Italian" {% if request.GET.cuisine == "Italian" %}selected{% endif %}>Italian</option>
+          <option value="Greek" {% if request.GET.cuisine == "Greek" %}selected{% endif %}>Greek</option>
+        </select>
+      </div>
+    </div>
   </form>
 
   {# Recipes List #}
-  <ul class="grid grid-cols-2 gap-4"> {#  2 columns #}
+  <ul class="grid grid-cols-2 gap-4">
     {% for recipe in recipes %}
-      <li> {# Each li is now a grid item #}
+      <li>
         <a href="{% url 'premade_recipe' recipe.id %}" class="text-blue-600 hover:underline">{{ recipe.name }}</a>
       </li>
     {% empty %}
-      <li class="col-span-2">No recipes found.</li> {# empty message #}
+      <li class="col-span-2">No recipes found.</li>
     {% endfor %}
   </ul>
-
 </div>
 {% endblock %}
