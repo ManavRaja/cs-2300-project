@@ -490,3 +490,16 @@ def view_meal_plan(request, meal_plan_id):
             "meal_order": meal_order,
         }
         return render(request, "main_app/view_meal_plan.html", context)
+
+
+def delete_meal_plan_view(request, meal_plan_id):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+    
+    meal_plan = get_object_or_404(WeeklyMealPlan, id=meal_plan_id, user=request.user)
+    
+    if request.method == "POST":
+        meal_plan.delete()
+        return redirect("user_dashboard")
+
+    return redirect("view_meal_plan", meal_plan_id=meal_plan.id)
