@@ -11,6 +11,12 @@ After cloning the repository, make sure you install all necessary dependencies b
 pip install -r requirements.txt
 ```
 
+Then, to set up the database, run these 2 commands to create tables in your database.
+```
+python3 manage.py makemigrations
+python3 manage.py migrate
+```
+
 Then, to start the Django webserver run the following command while in the `recipe_site` directory
 ```
 python manage.py runserver
